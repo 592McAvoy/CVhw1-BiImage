@@ -1,6 +1,6 @@
 import numpy as np
 
-def toBiImage(img):
+def toBiImage(img):     #translate a normal image to a binary image
     H,W,C = img.shape
     img = img.reshape(C,H,W)
     for c in range(C):
@@ -14,24 +14,23 @@ def toBiImage(img):
     
 
 class BiImage():
-    def __init__(self, img, SE):
-        self.img = img  #shape(H,W)
-        self.SE = SE    #shape(HH,WW)
+    def __init__(self, SE):
+        self.SE = SE    #Structual Element - shape(HH,WW)
 
-    def setCenter(self, row, col):
+    def setCenter(self, row, col):  #set the center of SE
         self.centR = row
         self.centC = col
                         
 
-    def dilation(self):
-        result = self.img.copy()
+    def dilation(self, img):
+        result = img.copy()
 
         H,W = result.shape
         HH,WW = self.SE.shape
     
         for h in range(H-HH+1):
             for w in range(W-WW+1):
-                area = self.img[h:h+HH,w:w+WW]
+                area = img[h:h+HH,w:w+WW]
                     
                 match = False
                 for hh in range(HH):
@@ -47,8 +46,8 @@ class BiImage():
                               
         return result
     
-    def erosion(self):
-        result = self.img.copy()
+    def erosion(self, img):
+        result = img.copy()
 
         H,W = result.shape
         HH,WW = self.SE.shape
@@ -56,7 +55,7 @@ class BiImage():
         
         for h in range(H-HH+1):
             for w in range(W-WW+1):
-                area = self.img[h:h+HH,w:w+WW]
+                area = img[h:h+HH,w:w+WW]
                     
                 match = True
                 for hh in range(HH):
@@ -71,3 +70,9 @@ class BiImage():
                     result[h+self.centR,w+self.centC] = 0
                     
         return result
+
+    def open(self, img):
+        return self.dilation(self.erosion(img))
+
+    def close(self, img):
+        return self.erosion(self.dilation(img))
